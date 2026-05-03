@@ -1,0 +1,77 @@
+# .outcomeops.yaml - Repository configuration for OutcomeOps AI Assist
+# This is the configuration for the eShop reference application
+
+version: "1.0"
+
+code_generation:
+  backend: "csharp"
+
+  # Custom guidelines for this repository
+  custom_guidelines: |
+    Target .NET 10 (see global.json) with ImplicitUsings enabled and TreatWarningsAsErrors=true.
+    Use .NET Aspire patterns: register services via eShop.ServiceDefaults; wire components in eShop.AppHost.
+    Central Package Management is enabled — declare versions in Directory.Packages.props, not in .csproj files.
+    Each microservice lives under src/{Service}.API with Apis/, Model/, Infrastructure/, IntegrationEvents/, Services/ folders.
+    Cross-service messaging uses the EventBus abstraction (EventBus + EventBusRabbitMQ); publish IntegrationEvents, never call services directly.
+    Persist outbox/inbox state via IntegrationEventLogEF when publishing from a transactional context.
+    Domain logic for Ordering follows DDD layering: Ordering.Domain (entities/aggregates), Ordering.Infrastructure (EF Core), Ordering.API (endpoints).
+    Prefer minimal APIs and OpenAPI-annotated endpoints (Asp.Versioning v10-preview2); keep API contracts in *.json next to the project.
+    Unit tests use MSTest.Sdk with NSubstitute; functional tests use xUnit + Aspire test host (Docker required).
+    Test runner is Microsoft.Testing.Platform (MTP) — do not reintroduce VSTest-only patterns.
+    Frontend changes target the Blazor WebApp (src/WebApp) or the .NET MAUI HybridApp (src/HybridApp); shared Razor components live in src/WebAppComponents.
+
+  # Additional KB queries for every plan
+  additional_kb_queries:
+    - ".NET Aspire AppHost service registration"
+    - "EventBus integration event publishing pattern"
+    - "Minimal API endpoint with Asp.Versioning"
+    - "MSTest + NSubstitute service test pattern"
+    - "Aspire functional test fixture"
+
+# Project context for plan generation
+project_context: |
+  eShop is a .NET reference e-commerce application built on .NET Aspire, demonstrating
+  a services-based architecture for the "AdventureWorks" sample storefront.
+
+  Tech stack:
+  - .NET 10 (global.json pins SDK 10.0.100, rollForward latestFeature)
+  - .NET Aspire 13.2 for local orchestration, service discovery, and observability
+  - ASP.NET Core minimal APIs with Asp.Versioning v10-preview2
+  - Entity Framework Core (PostgreSQL for Catalog/Ordering, Redis for Basket)
+  - RabbitMQ event bus for asynchronous integration events
+  - Duende IdentityServer for authentication (Identity.API)
+  - Blazor Server/WebAssembly (WebApp), .NET MAUI (HybridApp), Angular (ClientApp)
+  - OpenAI / Azure OpenAI integration with OpenTelemetry tracing enabled
+
+  Project structure:
+  - src/{Service}.API/                  - Microservice projects (Basket, Catalog, Identity, Ordering, Webhooks)
+  - src/eShop.AppHost/                  - Aspire orchestration entry point
+  - src/eShop.ServiceDefaults/          - Shared OpenTelemetry/health/resilience defaults
+  - src/EventBus, src/EventBusRabbitMQ  - Integration event bus abstractions and RabbitMQ implementation
+  - src/IntegrationEventLogEF/          - Transactional outbox via EF Core
+  - src/Ordering.Domain, Ordering.Infrastructure - DDD layers for the Ordering bounded context
+  - src/OrderProcessor, src/PaymentProcessor    - Background workers
+  - src/WebApp, src/WebAppComponents, src/HybridApp, src/ClientApp, src/WebhookClient - UIs
+  - tests/{Service}.UnitTests/          - MSTest unit tests
+  - tests/{Service}.FunctionalTests/    - xUnit + Aspire functional tests (require Docker)
+  - e2e/                                - Playwright end-to-end tests
+  - Directory.Packages.props            - Central package version management
+  - eShop.slnx / eShop.Web.slnf         - Solution files (slnx = full, Web.slnf = web-only filter)
+
+# Testing configuration
+testing:
+  framework: "mstest"
+  test_directory: "tests"
+  min_coverage: 70
+
+# Infrastructure / orchestration configuration
+infrastructure:
+  tool: "aspire"
+  directory: "src/eShop.AppHost"
+
+# ADRs to always include in context (use full names for accurate lookup)
+required_adrs:
+  # ADRs from this repository (none — eShop does not maintain in-repo ADRs)
+  repo: []
+  # ADRs from global/organization ADR repositories
+  global: []
