@@ -14,7 +14,7 @@ public partial class CatalogItemViewModel : ViewModelBase
 
     [ObservableProperty] private CatalogItem _catalogItem;
 
-    public CatalogItemViewModel(IAppEnvironmentService appEnvironmentService, INavigationService navigationService) :
+    public CatalogItemViewModel(IAppEnvironmentService appEnvironmentService, INavigationService navigationService, string verifyProbe = null) :
         base(navigationService)
     {
         _appEnvironmentService = appEnvironmentService;
